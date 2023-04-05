@@ -62,10 +62,18 @@ fn run_binding_generator(
 			eprintln!("=== {line}");
 		}
 	}
-	let child_status = generator_build.wait()?;
-	if !child_status.success() {
-		return Err("Failed to build the bindings generator".into());
-	}
+	let binding_gen = if let Ok(binding_gen) = std::env::var("BINDING_GEN_PATH") {
+		PathBuf::from(binding_gen)
+	} else {
+		let child_status = generator_build.wait()?;
+		if !child_status.success() {
+			return Err("Failed to build the bindings generator".into());
+		}
+		match HOST_TRIPLE.as_ref() {
+			Some(host_triple) => OUT_DIR.join(format!("{host_triple}/release/binding-generator")),
+			None => OUT_DIR.join("release/binding-generator"),
+		}
+	};
 
 	let additional_include_dirs = Arc::new(
 		additional_include_dirs
@@ -82,15 +90,13 @@ fn run_binding_generator(
 	let mut join_handles = Vec::with_capacity(modules.len());
 	let start = Instant::now();
 	modules.iter().for_each(|module| {
+		let binding_gen = binding_gen.clone();
 		let token = job_server.acquire().expect("Can't acquire token from job server");
 		let join_handle = thread::spawn({
 			let additional_include_dirs = Arc::clone(&additional_include_dirs);
 			let opencv_header_dir = Arc::clone(&opencv_header_dir);
 			move || {
-				let mut bin_generator = match HOST_TRIPLE.as_ref() {
-					Some(host_triple) => Command::new(OUT_DIR.join(format!("{host_triple}/release/binding-generator"))),
-					None => Command::new(OUT_DIR.join("release/binding-generator")),
-				};
+				let mut bin_generator = Command::new(binding_gen);
 				bin_generator
 					.arg(&*opencv_header_dir)
 					.arg(&*SRC_CPP_DIR)

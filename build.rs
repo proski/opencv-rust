@@ -282,14 +282,8 @@ fn build_clang_generator() -> io::Result<Child> {
 	let mut cargo = Command::new(cargo_bin);
 	// generator script is quite slow in debug mode, so we force it to be built in release mode
 	cargo
-		.args([
-			"build",
-			"--release",
-			"--package",
-			"opencv-binding-generator",
-			"--bin",
-			"binding-generator",
-		])
+		.current_dir("binding-generator/")
+		.args(["build", "--release", "--bin", "binding-generator"])
 		.env("CARGO_TARGET_DIR", &*OUT_DIR);
 	if let Some(host_triple) = HOST_TRIPLE.as_ref() {
 		cargo.args(["--target", host_triple]);

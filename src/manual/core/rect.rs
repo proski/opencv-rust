@@ -274,6 +274,7 @@ where
 	}
 }
 
+/*
 impl fmt::Debug for RotatedRect {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		f.debug_struct("RotatedRect")
@@ -283,6 +284,7 @@ impl fmt::Debug for RotatedRect {
 			.finish()
 	}
 }
+*/
 
 #[test]
 fn test_partial() {

@@ -1,3 +1,6 @@
+* [Backport from] 0.84.4
+  * Workaround for a build hang due to `cc` dependency
+
 * 0.78.2
   * Fix compilation with clang 16
 

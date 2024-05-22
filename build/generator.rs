@@ -3,6 +3,7 @@ use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command};
+use std::process;
 use std::sync::Arc;
 use std::time::Instant;
 use std::{env, fs, io, thread};
@@ -88,9 +89,11 @@ fn run_binding_generator(
 			let opencv_header_dir = Arc::clone(&opencv_header_dir);
 			move || {
 				let mut bin_generator = match HOST_TRIPLE.as_ref() {
-					Some(host_triple) => Command::new(OUT_DIR.join(format!("{host_triple}/release/binding-generator"))),
-					None => Command::new(OUT_DIR.join("release/binding-generator")),
+					Some(host_triple) => Command::new(OUT_DIR.join(format!("{host_triple}/release/binding-generator1"))),
+					None => Command::new(OUT_DIR.join("release/binding-generator2")),
 				};
+                eprintln!("bin_generator = {bin_generator:?}");
+                process::exit(1);
 				bin_generator
 					.arg(&*opencv_header_dir)
 					.arg(&*SRC_CPP_DIR)
